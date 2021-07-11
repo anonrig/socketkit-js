@@ -1,0 +1,55 @@
+{
+  "name": "socketkit",
+  "version": "0.5.0",
+  "description": "Next-gen behavior analysis server with built-in encryption supporting HTTP2 and gRPC.",
+  "source": "index.js",
+  "exports": "./dist/index.modern.js",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.module.js",
+  "unpkg": "./dist/index.umd.js",
+  "type": "module",
+  "scripts": {
+    "build": "microbundle",
+    "test": "c8 ava"
+  },
+  "keywords": [
+    "encryption",
+    "http2",
+    "behavior",
+    "microservice",
+    "security"
+  ],
+  "author": "Yagiz Nizipli <yagiz@nizipli.com>",
+  "license": "MIT",
+  "dependencies": {
+    "@socketkit/ajv-currency-code": "^1.0.1",
+    "@socketkit/ajv-locale-code": "^1.0.1",
+    "@socketkit/ajv-semver": "^1.0.1",
+    "ajv": "^8.6.1",
+    "axios": "^0.21.1",
+    "noble-ed25519": "^1.2.5"
+  },
+  "devDependencies": {
+    "ava": "^3.15.0",
+    "c8": "^7.7.3",
+    "microbundle": "^0.13.3"
+  },
+  "publishConfig": {
+    "source": "index.js",
+    "main": "dist/index.js"
+  },
+  "ava": {
+    "files": [
+      "./**/*.test.js"
+    ],
+    "failFast": true,
+    "environmentVariables": {
+      "CI": "true"
+    },
+    "nodeArguments": [
+      "--loader=quibble",
+      "--no-warnings",
+      "--require=dotenv/config"
+    ]
+  }
+}
