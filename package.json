@@ -16,7 +16,8 @@
   "type": "module",
   "scripts": {
     "build": "microbundle",
-    "test": "c8 ava"
+    "test": "c8 ava",
+    "prepublishOnly": "microbundle"
   },
   "keywords": [
     "encryption",
@@ -52,9 +53,7 @@
       "CI": "true"
     },
     "nodeArguments": [
-      "--loader=quibble",
-      "--no-warnings",
-      "--require=dotenv/config"
+      "--no-warnings"
     ]
   }
 }
