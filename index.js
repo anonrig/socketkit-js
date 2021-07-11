@@ -4,6 +4,7 @@ import * as ed from 'noble-ed25519'
 import ajv from './validator.js'
 import * as Events from './events.js'
 import { convertStringToHex } from './library.js'
+import pkg from './pkg.js'
 
 /**
  * Awacs Javascript SDK
@@ -174,6 +175,10 @@ export default class Awacs {
     const [_, type] = Object.entries(Events).find(
       ([key, value]) => key === event.name,
     )
+
+    if (event.name === 'app_open') {
+      event.library_version = pkg.version
+    }
 
     if (!type) {
       this.logger.warn(`Event type ${event_type} does not exist`)
