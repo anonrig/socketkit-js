@@ -49,11 +49,9 @@
       "./**/*.test.js"
     ],
     "failFast": true,
-    "environmentVariables": {
-      "CI": "true"
-    },
     "nodeArguments": [
-      "--no-warnings"
+      "--no-warnings",
+      "--experimental-json-modules"
     ]
   }
 }

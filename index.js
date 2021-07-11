@@ -4,7 +4,7 @@ import * as ed from 'noble-ed25519'
 import ajv from './validator.js'
 import * as Events from './events.js'
 import { convertStringToHex } from './library.js'
-import pkg from './pkg.js'
+import * as pkg from './package.json'
 
 /**
  * Awacs Javascript SDK
