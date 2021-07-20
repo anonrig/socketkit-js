@@ -181,7 +181,7 @@ export default class Awacs {
     }
 
     if (!type) {
-      this.logger.warn(`Event type ${event_type} does not exist`)
+      this.logger.warn(`Event type ${event.name} does not exist`)
       return false
     }
 
