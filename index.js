@@ -139,7 +139,7 @@ export default class Awacs {
       return this.logger.error(ajv.errors)
     }
 
-    const signature = await sign(event)
+    const signature = await this.sign(event)
 
     if (!signature) return // do nothing
 
