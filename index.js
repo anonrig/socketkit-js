@@ -23,11 +23,10 @@ export default class Awacs {
    *
    * @param {string} baseURL - Base url for Awacs url
    * @param {object} options - Awacs Options
-   * @param {string} options.authorization_key - Authorization key
+   * @param {string!} options.authorization_key - Authorization key
    * @param {string} options.signing_key - Signing Key
-   * @returns {undefined}
    */
-  constructor(baseURL, { authorization_key, signing_key } = {}) {
+  constructor(baseURL, { authorization_key, signing_key } = { authorization_key: null, signing_key: null }) {
     if (!baseURL) {
       throw new Error(`[Awacs] Missing baseURL`)
     }
@@ -46,6 +45,10 @@ export default class Awacs {
       headers: { 'x-Awacs-key': authorization_key },
     })
     this.client_id = null
+
+    /**
+     * @param {object} logger - Logger instance
+     */
     this.logger = console
   }
 
@@ -58,7 +61,7 @@ export default class Awacs {
    *  client.setClientId(randomUUID)
    *
    * @param {string} client_id - Client id (Required to be UUID)
-   * @returns {undefined}
+   * @returns {void}
    */
   setClientId(client_id) {
     this.client_id = client_id
@@ -74,12 +77,8 @@ export default class Awacs {
    *  const client = new Awacs(url, options)
    *  client.setLogger(console)
    *
-   * @params {object} logger
-   * @params {function} logger.debug - Debug function
-   * @params {function} logger.warn - Warning function
-   * @params {function} logger.info - Info function
-   * @params {function} logger.error - Error function
-   * @returns {undefined}
+   * @param {object} logger - Logger instance
+   * @returns {void}
    */
   setLogger(logger) {
     this.logger = logger
@@ -95,7 +94,7 @@ export default class Awacs {
    *  const client = new Awacs(url, options)
    *  client.sign([{ name: 'app_open', timestamp: 1625852442986 }])
    *
-   * @params {Array} payload - Payload to be signed
+   * @param {Events.app_open|Events.in_app_purchase|Events.set_client|Events.custom} payload - Event payload
    * @returns {Promise<string | null>} - Signed payload
    */
   async sign(payload) {
@@ -127,7 +126,7 @@ export default class Awacs {
    *  await client.sendEvent("custom", { name: "custom", timestamp: 1625852442986, properties: {} })
    *
    * @param {Events.app_open|Events.in_app_purchase|Events.set_client|Events.custom} event - Event payload
-   * @returns {Promise<undefined>}
+   * @returns {Promise<void>}
    */
   async sendEvent(event) {
     if (!this.client_id) {
@@ -173,7 +172,7 @@ export default class Awacs {
     }
 
     const [_, type] = Object.entries(Events).find(
-      ([key, value]) => key === event.name,
+      ([key]) => key === event.name,
     )
 
     if (event.name === 'app_open') {
