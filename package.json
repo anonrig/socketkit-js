@@ -1,6 +1,6 @@
 {
   "name": "socketkit",
-  "version": "0.5.3",
+  "version": "0.6.0",
   "description": "Next-gen behavior analysis server with built-in encryption supporting HTTP2 and gRPC.",
   "homepage": "https://github.com/socketkit/socketkit-js#readme",
   "bugs": {
