@@ -17,6 +17,7 @@
   "scripts": {
     "build": "microbundle",
     "test": "c8 ava",
+    "lint": "eslint \"**/*.js\" --fix",
     "prepublishOnly": "microbundle"
   },
   "keywords": [
@@ -31,14 +32,23 @@
     "@socketkit/ajv-currency-code": "^1.0.1",
     "@socketkit/ajv-locale-code": "^1.0.1",
     "@socketkit/ajv-semver": "^1.0.1",
-    "ajv": "^8.6.1",
-    "axios": "^0.21.1",
-    "noble-ed25519": "^1.2.5"
+    "ajv": "^8.6.2",
+    "undici": "^4.2.1"
   },
   "devDependencies": {
+    "@babel/eslint-parser": "^7.14.7",
+    "@babel/plugin-syntax-class-properties": "^7.12.13",
+    "@babel/preset-env": "^7.14.8",
     "ava": "^3.15.0",
     "c8": "^7.7.3",
-    "microbundle": "^0.13.3"
+    "eslint": "^7.31.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-import": "^2.23.4",
+    "eslint-plugin-json": "^3.0.0",
+    "eslint-plugin-prettier": "^3.4.0",
+    "eslint-plugin-security": "^1.4.0",
+    "microbundle": "^0.13.3",
+    "prettier": "^2.3.2"
   },
   "publishConfig": {
     "source": "index.js",
@@ -53,5 +63,46 @@
       "--no-warnings",
       "--experimental-json-modules"
     ]
+  },
+  "eslintConfig": {
+    "env": {
+      "node": true,
+      "es6": true
+    },
+    "extends": [
+      "eslint:recommended",
+      "plugin:prettier/recommended",
+      "plugin:import/recommended",
+      "plugin:security/recommended",
+      "plugin:json/recommended"
+    ],
+    "ignorePatterns": [
+      ".github",
+      "coverage",
+      "dist"
+    ],
+    "parser": "@babel/eslint-parser",
+    "parserOptions": {
+      "babelOptions": {
+        "configFile": "./.babelrc"
+      },
+      "ecmaVersion": 2021
+    },
+    "plugins": [
+      "prettier",
+      "import",
+      "security"
+    ],
+    "rules": {
+      "eqeqeq": [
+        "error",
+        "always"
+      ]
+    },
+    "settings": {
+      "jsdoc": {
+        "mode": "typescript"
+      }
+    }
   }
 }

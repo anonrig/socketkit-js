@@ -2,7 +2,7 @@
  * App open event. Includes all necessary information regarding the device and user
  * @typedef {Object} app_open
  * @property {"app_open"} name - Name of the event
- * @property {integer} timestamp - Unix timestamp of the event
+ * @property {number} timestamp - Unix timestamp of the event
  * @property {string} locale
  * @property {string} manufacturer
  * @property {"ios"|"android"} platform
@@ -134,7 +134,7 @@ export const in_app_purchase = {
  * Set Client Properties Event
  * @typedef {Object} set_client
  * @property {"set_client"} name - Name of the event
- * @property {integer} timestamp - Unix timestamp of the event
+ * @property {number} timestamp - Unix timestamp of the event
  * @property {string} [distinct_id]
  * @property {string} [referer]
  * @property {string} [push_token]
@@ -174,7 +174,7 @@ export const set_client = {
  * Represents a custom event
  * @typedef {Object} custom
  * @property {"custom"} name - Name of the event
- * @property {integer} timestamp - Unix timestamp of the event
+ * @property {number} timestamp - Unix timestamp of the event
  */
 export const custom = {
   $id: 'custom_event',

@@ -1,6 +1,6 @@
-## Socketkit JavaScript SDK
+## Socketkit Node.js SDK
 
-Access Socketkit Awacs using JavaScript SDK to anonymously track and understand user behavior with built in security.
+Access Socketkit Awacs using Node.js SDK to anonymously track and understand user behavior with built in security.
 
 ## Install
 
@@ -12,6 +12,7 @@ npm i --save socketkit
 
 ```javascript
 import Socketkit from 'socketkit'
+import { randomUUID } from 'crypto'
 
 const url = "https://tracking.socketkit.com"
 const options = {
@@ -20,11 +21,9 @@ const options = {
 }
 const client = new Socketkit(url, options)
 
-// If you're using React Native, please store and retrieve client id
-// from `async-storage` to persist id.
-// Make sure that client_id is a UUID v4.
-const clientId = localStorage.getItem('client_id')
+const clientId = randomUUID()
 client.setClientId(clientId)
+client.sendEvent({ name: 'custom', timestamp: Date.now(), custom_key: 'value' })
 ```
 
 ## Send events
