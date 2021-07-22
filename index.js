@@ -1,5 +1,5 @@
 import Crypto from 'crypto'
-import { Client } from 'undici'
+import axios from 'axios'
 import ajv from './validator.js'
 import * as Events from './events.js'
 import * as pkg from './package.json'
@@ -45,7 +45,7 @@ export default class Awacs {
 
     this.signing_key = signing_key
     this.authorization_key = authorization_key
-    this.client = new Client(baseURL)
+    this.client = axios.create({ baseURL })
     this.client_id = null
     this.logger = console
   }
@@ -143,16 +143,13 @@ export default class Awacs {
 
     try {
       // @ts-ignore
-      await this.client.request({
-        path: '/v1/events',
-        method: 'POST',
+      await this.client.post('/v1/events', request, {
         headers: {
           'x-socketkit-key': this.authorization_key,
           'x-signature': signature,
           'x-client-id': this.client_id,
           'user-agent': `socketkit-js-${pkg.version}`,
         },
-        body: Buffer.from(request),
       })
     } catch (error) {
       this.logger.warn(error)

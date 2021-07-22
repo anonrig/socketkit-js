@@ -33,7 +33,7 @@
     "@socketkit/ajv-locale-code": "^1.0.1",
     "@socketkit/ajv-semver": "^1.0.1",
     "ajv": "^8.6.2",
-    "undici": "^4.2.1"
+    "axios": "^0.21.1"
   },
   "devDependencies": {
     "@babel/eslint-parser": "^7.14.7",
