@@ -1,9 +1,7 @@
-import axios from 'axios'
-import * as ed from 'noble-ed25519'
-
+import Crypto from 'crypto'
+import { Client } from 'undici'
 import ajv from './validator.js'
 import * as Events from './events.js'
-import { convertStringToHex } from './library.js'
 import * as pkg from './package.json'
 
 /**
@@ -26,7 +24,13 @@ export default class Awacs {
    * @param {string!} options.authorization_key - Authorization key
    * @param {string} options.signing_key - Signing Key
    */
-  constructor(baseURL, { authorization_key, signing_key } = { authorization_key: null, signing_key: null }) {
+  constructor(
+    baseURL,
+    { authorization_key, signing_key } = {
+      authorization_key: null,
+      signing_key: null,
+    },
+  ) {
     if (!baseURL) {
       throw new Error(`[Awacs] Missing baseURL`)
     }
@@ -40,15 +44,9 @@ export default class Awacs {
     }
 
     this.signing_key = signing_key
-    this.instance = axios.create({
-      baseURL,
-      headers: { 'x-Awacs-key': authorization_key },
-    })
+    this.authorization_key = authorization_key
+    this.client = new Client(baseURL)
     this.client_id = null
-
-    /**
-     * @param {object} logger - Logger instance
-     */
     this.logger = console
   }
 
@@ -65,7 +63,6 @@ export default class Awacs {
    */
   setClientId(client_id) {
     this.client_id = client_id
-    this.instance.defaults.headers.post['x-client-id'] = client_id
     this.logger.debug(`[Awacs] Setting client_id to ${client_id}`)
   }
 
@@ -92,9 +89,9 @@ export default class Awacs {
    *
    * @example
    *  const client = new Awacs(url, options)
-   *  client.sign([{ name: 'app_open', timestamp: 1625852442986 }])
+   *  client.sign([{ name: 'custom', timestamp: 1625852442986 }])
    *
-   * @param {Events.app_open|Events.in_app_purchase|Events.set_client|Events.custom} payload - Event payload
+   * @param {[Events.app_open|Events.in_app_purchase|Events.set_client|Events.custom]} payload - Event payload
    * @returns {Promise<string | null>} - Signed payload
    */
   async sign(payload) {
@@ -104,8 +101,9 @@ export default class Awacs {
     }
 
     try {
-      const hex = convertStringToHex(JSON.stringify(payload))
-      return await ed.sign(hex, this.signing_key)
+      const body = Buffer.from(JSON.stringify(payload))
+      const der = `-----BEGIN PRIVATE KEY-----\n${this.signing_key}\n-----END PRIVATE KEY-----`
+      return Crypto.sign(null, body, der).toString('base64')
     } catch (error) {
       this.logger.warn(
         `[Awacs] Failed to sign the payload due to ${error.message}`,
@@ -123,7 +121,7 @@ export default class Awacs {
    * @example
    *  const client = new Awacs(url, options)
    *  client.setClientId(randomUUID)
-   *  await client.sendEvent("custom", { name: "custom", timestamp: 1625852442986, properties: {} })
+   *  await client.sendEvent({ name: "custom", timestamp: 1625852442986, properties: {} })
    *
    * @param {Events.app_open|Events.in_app_purchase|Events.set_client|Events.custom} event - Event payload
    * @returns {Promise<void>}
@@ -138,13 +136,23 @@ export default class Awacs {
       return this.logger.error(ajv.errors)
     }
 
-    const signature = await this.sign(event)
+    const request = [event]
+    const signature = await this.sign(request)
 
     if (!signature) return // do nothing
 
     try {
-      await this.instance.post('/v1/events', [event], {
-        headers: { 'x-signature': signature },
+      // @ts-ignore
+      await this.client.request({
+        path: '/v1/events',
+        method: 'POST',
+        headers: {
+          'x-socketkit-key': this.authorization_key,
+          'x-signature': signature,
+          'x-client-id': this.client_id,
+          'user-agent': `socketkit-js-${pkg.version}`,
+        },
+        body: Buffer.from(request),
       })
     } catch (error) {
       this.logger.warn(error)
@@ -171,9 +179,7 @@ export default class Awacs {
       return false
     }
 
-    const [_, type] = Object.entries(Events).find(
-      ([key]) => key === event.name,
-    )
+    const [_, type] = Object.entries(Events).find(([key]) => key === event.name)
 
     if (event.name === 'app_open') {
       event.library_version = pkg.version
