@@ -1,0 +1,49 @@
+<html>
+<head>
+  <title>Socketkit Quickstart</title>
+  <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
+  <script type="module">
+    import Socketkit from './dist/index.modern.js'
+
+    // Please change the authorization and signing keys.
+    const authorization_key = 'ogXu2rHWHEHbRCgX9H6UmEefaww7tK89UaSkrOORak8='
+    const signing_key = 'WkRsalptVTBZVGd0TkRnM1lpMDBOREl3TFdFeU56TXRZamMxWXpjMlpEWTVNV1Zq'
+    const client = new Socketkit({
+      authorization_key,
+      signing_key,
+    })
+
+    // This is just an example of a client id.
+    client.setClientId('770e760b-5aa6-4632-ae4d-ac747150fb81')
+
+    function sendEvent() {
+      client
+        .sendEvent({
+          application_build_number: 14,
+          application_version: '1.0.0',
+          carrier: 'T-Mobile',
+          library_version: '0.5.3',
+          locale: 'en-US',
+          manufacturer: 'Apple',
+          name: 'app_open',
+          os_name: 'iOS',
+          os_version: '14.4.1',
+          platform: 'ios',
+          screen_size: [2778, 1284],
+          timestamp: new Date().toISOString(),
+          type: 'iPad13,1',
+          watch_model: 'Apple Watch 38mm',
+        })
+        .then(() => console.info('Successfully sent an event'))
+    }
+
+  </script>
+</head>
+<body class="bg-white flex justify-center h-full items-center">
+  <div class="w-92 text-center space-y-2">
+    <h1 class="font-md">Browser testing</h1>
+    <p>Please check your browser console for the result.</p>
+    <button onclick="sendEvent()" type="button" class="inline-flex items-center px-3.5 py-2 border border-transparent text-sm leading-4 font-medium rounded-full shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Send event</button>
+  </div>
+</body>
+</html>

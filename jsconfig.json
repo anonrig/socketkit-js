@@ -1,5 +1,7 @@
 {
   "compilerOptions": {
-    "checkJs": true
+    "checkJs": true,
+    "resolveJsonModule": true,
+    "downlevelIteration": true
   }
 }

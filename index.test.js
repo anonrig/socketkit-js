@@ -1,29 +1,16 @@
 import test from 'ava'
+
 import Awacs from './index.js'
 
 const mockLogger = {
   debug: () => {},
-  warn: () => {},
-  info: () => {},
   error: () => {},
+  info: () => {},
+  warn: () => {},
 }
 
-test('should validate events', (t) => {
-  const client = new Awacs('https://tracking.socketkit.com', {
-    authorization_key: 'authorization_key',
-    signing_key: 'signing_key',
-  })
-
-  t.truthy(
-    client.isEventValid({
-      name: 'custom',
-      timestamp: Date.now(),
-    }),
-  )
-})
-
 test('should mock logger', (t) => {
-  const client = new Awacs('https://tracking.socketkit.com', {
+  const client = new Awacs({
     authorization_key: 'authorization_key',
     signing_key: 'signing_key',
   })

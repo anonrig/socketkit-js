@@ -1,53 +1,47 @@
-import Crypto from 'crypto'
 import axios from 'axios'
-import ajv from './validator.js'
+import webcrypto from 'isomorphic-webcrypto'
+
 import * as Events from './events.js'
 import * as pkg from './package.json'
 
 /**
- * Awacs Javascript SDK
+ * Socketkit Javascript SDK
  * @class
  * @classdesc Provides an interface to send events using Javascript.
  */
-export default class Awacs {
+export default class Socketkit {
   static EventTypes = Events
 
   /**
    * @constructor
-   * @description Awacs javascript sdk
+   * @description Socketkit javascript sdk
    *
    * @example
-   *  const client = new Awacs('https://tracking.socketkit.com', options)
+   *  const client = new Socketkit(options)
    *
-   * @param {string} baseURL - Base url for Awacs url
-   * @param {object} options - Awacs Options
+   * @param {object} options - Socketkit Options
    * @param {string!} options.authorization_key - Authorization key
    * @param {string} options.signing_key - Signing Key
    */
   constructor(
-    baseURL,
     { authorization_key, signing_key } = {
       authorization_key: null,
       signing_key: null,
     },
   ) {
-    if (!baseURL) {
-      throw new Error(`[Awacs] Missing baseURL`)
-    }
-
     if (!authorization_key) {
-      throw new Error(`[Awacs] Missing authorization_key`)
+      throw new Error(`[Socketkit] Missing authorization_key`)
     }
 
     if (!signing_key) {
-      throw new Error(`[Awacs] Missing signing_key`)
+      throw new Error(`[Socketkit] Missing signing_key`)
     }
 
-    this.signing_key = signing_key
     this.authorization_key = authorization_key
-    this.client = axios.create({ baseURL })
+    this.client = axios.create({ baseURL: 'https://tracking.socketkit.com' })
     this.client_id = null
     this.logger = console
+    this.signing_key = atob(signing_key)
   }
 
   /**
@@ -55,7 +49,7 @@ export default class Awacs {
    * @description Sets the client id. Client id needs to be an UUID. Preferably v4.
    *
    * @example
-   *  const client = new Awacs(url, options)
+   *  const client = new Socketkit(url, options)
    *  client.setClientId(randomUUID)
    *
    * @param {string} client_id - Client id (Required to be UUID)
@@ -63,7 +57,7 @@ export default class Awacs {
    */
   setClientId(client_id) {
     this.client_id = client_id
-    this.logger.debug(`[Awacs] Setting client_id to ${client_id}`)
+    this.logger.debug(`[Socketkit] Setting client_id to ${client_id}`)
   }
 
   /**
@@ -71,7 +65,7 @@ export default class Awacs {
    * @description Changes the default logger
    *
    * @example
-   *  const client = new Awacs(url, options)
+   *  const client = new Socketkit(url, options)
    *  client.setLogger(console)
    *
    * @param {object} logger - Logger instance
@@ -79,17 +73,17 @@ export default class Awacs {
    */
   setLogger(logger) {
     this.logger = logger
-    this.logger.debug(`[Awacs] Setting logger`)
+    this.logger.debug(`[Socketkit] Setting logger`)
   }
 
   /**
    * @async
    * @function sign
-   * @description Signs the payload using the Awacs signing key
+   * @description Signs the payload using the Socketkit signing key
    *
    * @example
-   *  const client = new Awacs(url, options)
-   *  client.sign([{ name: 'custom', timestamp: 1625852442986 }])
+   *  const client = new Socketkit(url, options)
+   *  client.sign([{ name: 'custom', timestamp: '2021-11-30T21:48:12.554Z' }])
    *
    * @param {[Events.app_open|Events.in_app_purchase|Events.set_client|Events.custom]} payload - Event payload
    * @returns {Promise<string | null>} - Signed payload
@@ -101,14 +95,23 @@ export default class Awacs {
     }
 
     try {
-      const body = Buffer.from(JSON.stringify(payload))
-      const der = `-----BEGIN PRIVATE KEY-----\n${this.signing_key}\n-----END PRIVATE KEY-----`
-      return Crypto.sign(null, body, der).toString('base64')
-    } catch (error) {
-      this.logger.warn(
-        `[Awacs] Failed to sign the payload due to ${error.message}`,
-        error,
+      const encoder = new TextEncoder('utf8')
+      const key = await webcrypto.subtle.importKey(
+        'raw',
+        encoder.encode(this.signing_key),
+        { hash: 'SHA-512', name: 'HMAC' },
+        false,
+        ['sign', 'verify'],
       )
+      const signature = await webcrypto.subtle.sign(
+        'HMAC',
+        key,
+        encoder.encode(JSON.stringify(payload)),
+      )
+
+      return btoa(String.fromCharCode(...new Uint8Array(signature)))
+    } catch (error) {
+      this.logger.warn(`[Socketkit] Failed to sign the payload due to ${error.message}`, error)
       return null
     }
   }
@@ -116,24 +119,19 @@ export default class Awacs {
   /**
    * @async
    * @function sendEvent
-   * @description Send an event to Awacs
+   * @description Send an event to Socketkit
    *
    * @example
-   *  const client = new Awacs(url, options)
+   *  const client = new Socketkit(url, options)
    *  client.setClientId(randomUUID)
-   *  await client.sendEvent({ name: "custom", timestamp: 1625852442986, properties: {} })
+   *  await client.sendEvent({ name: "custom", timestamp: '2021-11-30T21:48:12.554Z', properties: {} })
    *
    * @param {Events.app_open|Events.in_app_purchase|Events.set_client|Events.custom} event - Event payload
    * @returns {Promise<void>}
    */
   async sendEvent(event) {
     if (!this.client_id) {
-      return this.logger.warn(`[Awacs] You need to set client_id first.`)
-    }
-
-    if (!this.isEventValid(event)) {
-      this.logger.warn(`[Awacs] Failed to validate event payload`)
-      return this.logger.error(ajv.errors)
+      return this.logger.warn(`[Socketkit] You need to set client_id first.`)
     }
 
     const request = [event]
@@ -145,48 +143,16 @@ export default class Awacs {
       // @ts-ignore
       await this.client.post('/v1/events', request, {
         headers: {
-          'x-socketkit-key': this.authorization_key,
-          'x-signature': signature,
-          'x-client-id': this.client_id,
           'user-agent': `socketkit-js-${pkg.version}`,
+          'x-client-id': this.client_id,
+          'x-signature': signature,
+          'x-socketkit-key': this.authorization_key,
         },
       })
     } catch (error) {
-      this.logger.warn(error)
-    }
-  }
-
-  /**
-   * @private
-   * @function isEventValid
-   * @description Validate if a payload is a valid event.
-   *
-   * @example
-   *  const client = new Awacs(url, options)
-   *  client.isEventValid({ name: "custom", timestamp: 1625852442986 }) === true
-   *
-   * @param {Events.app_open|Events.in_app_purchase|Events.set_client|Events.custom} event - Event payload
-   * @returns {boolean}
-   */
-  isEventValid(event) {
-    if (!event.name) {
       this.logger.warn(
-        `[Awacs] Event does not have a valid name. Received ${event.name}.`,
+        `[Socketkit] Sending event failed: "${error.response?.data.message ?? error.message}"`,
       )
-      return false
     }
-
-    const [_, type] = Object.entries(Events).find(([key]) => key === event.name)
-
-    if (event.name === 'app_open') {
-      event.library_version = pkg.version
-    }
-
-    if (!type) {
-      this.logger.warn(`Event type ${event.name} does not exist`)
-      return false
-    }
-
-    return ajv.validate(type, event)
   }
 }

@@ -1,6 +1,6 @@
-## Socketkit Node.js SDK
+## Socketkit JavaScript SDK
 
-Access Socketkit Awacs using Node.js SDK to anonymously track and understand user behavior with built in security.
+Access Socketkit using cross-platform JavaScript SDK to anonymously track and understand user behavior with built-in security.
 
 ## Install
 
@@ -14,16 +14,16 @@ npm i --save socketkit
 import Socketkit from 'socketkit'
 import { randomUUID } from 'crypto'
 
-const url = "https://tracking.socketkit.com"
 const options = {
   authorization_key: 'authorization_key',
   signing_key: 'signing_key'
 }
-const client = new Socketkit(url, options)
+const client = new Socketkit(options)
 
+// Store this preferably in your own database for future reference.
 const clientId = randomUUID()
 client.setClientId(clientId)
-client.sendEvent({ name: 'custom', timestamp: Date.now(), custom_key: 'value' })
+client.sendEvent({ name: 'custom', timestamp: new Date().toISOString(), custom_key: 'value' })
 ```
 
 ## Send events
@@ -35,7 +35,7 @@ App open event type should be sent when the application is booted. Includes char
 ```javascript
 client.sendEvent({
   name: "app_open",
-  timestamp: Date.now(),
+  timestamp: new Date().toISOString(),
   locale: 'en-US',
   manufacturer: 'Apple',
   platform: 'ios',
@@ -58,7 +58,7 @@ Includes all the information related to tracking a in app purchase payment. For 
 ```javascript
 client.sendEvent({
   name: "in_app_purchase",
-  timestamp: Date.now(),
+  timestamp: new Date().toISOString(),
   product_name: "Weekly Package",
   product_quantity: 1,
   product_price: 4.99,
@@ -73,7 +73,7 @@ Set client event type gives the ability to store more information about the user
 ```javascript
 client.sendEvent({
   name: "set_client",
-  timestamp: Date.now(),
+  timestamp: new Date().toISOString(),
   distinct_id: null,
   referer: "Google",
   push_token: null,
@@ -91,7 +91,7 @@ Custom event type gives the user the ability to send any kind of data to the Awa
 ```javascript
 client.sendEvent({
   name: "custom",
-  timestamp: Date.now(),
+  timestamp: new Date().toISOString(),
   random_key: "value"
 })
 ```

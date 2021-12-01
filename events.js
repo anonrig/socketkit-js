@@ -16,76 +16,7 @@
  * @property {string} library_version
  * @property {string} [watch_model] - Only used by watch applications
  */
-export const app_open = {
-  $id: 'app_open_event',
-  type: 'object',
-  title: 'app_open',
-  description:
-    'App open event. Includes all necessary information regarding the device and user',
-  properties: {
-    name: {
-      type: 'string',
-      description: 'Name of the event',
-      enum: ['app_open'],
-    },
-    timestamp: {
-      type: 'integer',
-      description: 'Unix timestamp of the event',
-    },
-    locale: { type: 'string', format: 'locale_code' },
-    manufacturer: { type: 'string' },
-    platform: {
-      type: 'string',
-      enum: ['ios', 'android'],
-    },
-    type: { type: 'string' },
-    carrier: { type: 'string' },
-    os_name: {
-      type: 'string',
-      description: 'Changes according to platform and device type',
-    },
-    os_version: {
-      type: 'string',
-      format: 'semver',
-    },
-    screen_size: {
-      type: 'array',
-      items: {
-        type: 'integer',
-      },
-      maxItems: 2,
-      minItems: 2,
-      description: 'Screen size expected format is [height, width]',
-    },
-    application_build_number: { type: 'number' },
-    application_version: {
-      type: 'string',
-      format: 'semver',
-    },
-    library_version: {
-      type: 'string',
-      format: 'semver',
-    },
-    watch_model: {
-      type: 'string',
-      description: 'Only used by watch applications',
-    },
-  },
-  required: [
-    'name',
-    'timestamp',
-    'locale',
-    'platform',
-    'manufacturer',
-    'type',
-    'os_name',
-    'os_version',
-    'screen_size',
-    'application_build_number',
-    'application_version',
-    'library_version',
-  ],
-}
+export const app_open = 'app_open'
 
 /**
  * In App Purchase Event
@@ -97,38 +28,7 @@ export const app_open = {
  * @property {number} product_price
  * @property {string} product_currency
  */
-export const in_app_purchase = {
-  $id: 'in_app_purchase_event',
-  type: 'object',
-  title: 'in_app_purchase',
-  description: 'In App Purchase Event',
-  properties: {
-    name: {
-      type: 'string',
-      description: 'Name of the event',
-      enum: ['in_app_purchase'],
-    },
-    timestamp: {
-      type: 'string',
-      description: 'Unix timestamp of the event',
-    },
-    product_name: { type: 'string' },
-    product_quantity: { type: 'number' },
-    product_price: { type: 'number' },
-    product_currency: {
-      type: 'string',
-      format: 'currency_code',
-    },
-  },
-  required: [
-    'name',
-    'timestamp',
-    'product_name',
-    'product_quantity',
-    'product_price',
-    'product_currency',
-  ],
-}
+export const in_app_purchase = 'in_app_purchase'
 
 /**
  * Set Client Properties Event
@@ -141,34 +41,7 @@ export const in_app_purchase = {
  * @property {boolean} [is_opt_out]
  * @property {object} [additional_properties]
  */
-export const set_client = {
-  $id: 'set_client_event',
-  type: 'object',
-  title: 'set_client',
-  description: 'Set Client Properties Event',
-  properties: {
-    name: {
-      type: 'string',
-      description: 'Name of the event',
-      enum: ['set_client'],
-    },
-    timestamp: {
-      type: 'integer',
-      description: 'Unix timestamp of the event',
-    },
-    distinct_id: { type: 'string' },
-    referer: { type: 'string' },
-    push_token: { type: 'string' },
-    is_opt_out: { type: 'boolean' },
-    additional_properties: {
-      type: 'object',
-      properties: {},
-      additionalProperties: true,
-      minProperties: 1,
-    },
-  },
-  required: ['name', 'timestamp'],
-}
+export const set_client = 'set_client'
 
 /**
  * Represents a custom event
@@ -176,22 +49,4 @@ export const set_client = {
  * @property {"custom"} name - Name of the event
  * @property {number} timestamp - Unix timestamp of the event
  */
-export const custom = {
-  $id: 'custom_event',
-  type: 'object',
-  title: 'custom',
-  description: 'Custom event type',
-  properties: {
-    name: {
-      type: 'string',
-      description: 'Name of the event',
-      enum: ['custom'],
-    },
-    timestamp: {
-      type: 'integer',
-      description: 'Unix timestamp of the event',
-    },
-  },
-  additionalProperties: true,
-  required: ['name', 'timestamp'],
-}
+export const custom = 'custom'
